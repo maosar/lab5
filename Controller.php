@@ -37,7 +37,10 @@ class Controller
 	    function get_latest_obs_id($sensor_id){
 
 
-        $data = $this -> observationModel -> get_latest_obs_id($sensor_id);
+        //$data = $this -> observationModel -> get_latest_obs_id($sensor_id);
+        $sensor1 = $this -> observationModel -> get_latest_obs_id(1);
+        $sensor2 = $this -> observationModel -> get_latest_obs_id(2);
+		$data = array_merge($sensor1, $sensor2);
         return $data;
         
     }

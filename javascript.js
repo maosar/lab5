@@ -1,40 +1,51 @@
 var chart;
-var date_time = [];
-var cars = [];
-var new_cars;
-var old_time;
-var recived_time;
-var hasData = false;
-var timeChanged = false;
-
+var aspen_time = [];
+var aspen_temp = [];
+var chamonix_time = [];
+var chamonix_temp = [];
+var server_event = {
+    1: { "time": new Date, "temp": 0.0, "isNew": false },
+    2: { "time": new Date, "temp": 0.0, "isNew": false }
+};
 
 
 $(document).ready(function () {
     LoadFile();
     LoadServerEvent();
-
-
 });
 
 function LoadServerEvent() {
-    var evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index2.php");
-    // var evtSource = new EventSource("http://130.243.34.36/index2.php");
-    console.log("started");
+    evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index4.php?");
     evtSource.onmessage = function (event) {
-        // console.log(event);
-        var res = event.data.split("??");
-        recived_time = res[0];
-        new_cars = res[1];
-        console.log("Recived time " + recived_time);
-        console.log("Recived time " + old_time);
+        data = JSON.parse(event.data);
+        aspen = (data[0]);
+        chamonix = (data[1]);
 
+        //var sensor_id = event.data[0].sensor_id;
+        //newTime = data[0].obs_time;
+        //temp = data[0].temp;
 
-        if (recived_time != old_time) {
-            old_time = recived_time;
-            timeChanged = true;
-        }
+        //console.log(new Date(newTime).getTime());
+        //console.log("Time: " + newTime);
 
-        document.getElementById('latest').innerHTML = recived_time + ": " + new_cars + " cars waiting at traffic light";
+        //server_event[sensor_id].time = new Date(newTime).getTime();
+        //server_event[sensor_id].temp = parseFloat(temp);
+        //server_event[sensor_id].isNew = true;
+        //console.log(server_event[sensor_id]);
+
+    }
+    evtSource.onerror = function (err) {
+        console.error("EventSource failed:", err);
+        console.error("Is trusted:", err.isTrusted);
+    };
+
+}
+function LoadServerEvent2() {
+    evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index4.php?");
+    evtSource.onmessage = function (event) {
+        data = JSON.parse(event.data);
+        console.log(data);
+     
 
     }
     evtSource.onerror = function (err) {
@@ -44,6 +55,7 @@ function LoadServerEvent() {
 
 }
 
+
 function LoadFile() {
     var apiUrl = "http://users.du.se/~h17maost/2018/TempLabb/index1.php?Controller%get_obs%";
     // var apiUrl = "http://130.243.34.36/index1.php?Controller%get_obs%";
@@ -52,13 +64,26 @@ function LoadFile() {
             console.log(response);
             response.json()
                 .then(function (data) {
+
                     data.forEach(function (item, index, array) {
-                        date_time.push(item.date_time);
-                        cars.push(parseInt(item.cars));
+                        if (item.sensor_id == 1) {
+                            aspen_time.push(item.obs_time);
+                            aspen_temp.push(parseFloat(item.temp));
+                        } else
+                        {
+                            chamonix_time.push(item.obs_time);
+                            chamonix_temp.push(parseFloat(item.temp));
+                        }
+
                     });
-                    hasData = true;
+                    console.log("aspen");
+                    console.log(aspen_time);
+                    console.log(aspen_temp);
+                    console.log("chamonix");
+                    console.log(chamonix_time);
+                    console.log(chamonix_temp);
                     ShowChart();
-                    LoadServerEvent();
+                    
                 }).catch(error => console.log('Error json():', error));
         }).catch(error => console.log('Error response: ', error));
 }
@@ -77,15 +102,15 @@ function ShowChart() {
                     var series = this.series[0];
 
                     setInterval(function () {
-                        if (timeChanged) {
-                            let x = new Date(old_time).getTime(), // current time
-                                y = parseInt(new_cars);
-                            // [x,y, redraw, shift]
-                            series.addPoint([x, y], true, true);
-                            console.log(x)
-                            console.log(y)
-                            timeChanged = false;
-                        }
+                        
+                            //let x = new Date(old_time).getTime(), // current time
+                            //    y = parseInt(new_temp);
+                            //// [x,y, redraw, shift]
+                            //series.addPoint([x, y], true, true);
+                            //console.log(x)
+                            //console.log(y)
+                            //timeChanged = false;
+                        
                     }, 100);
                 }
             }
@@ -142,23 +167,42 @@ function ShowChart() {
         },
 
         series: [{
-            name: 'Random data',
+            name: 'Aspen data',
             data:
 
                 (function () {
                     // generate an array of random data
                     var data = [];
 
-                    console.log(date_time.length);
-                    for (i = date_time.length - 10; i < date_time.length; i += 1) {
+                    console.log(aspen_time.length);
+                    for (i = aspen_time.length - 10; i < aspen_time.length; i += 1) {
                         data.push({
-                            x: new Date(date_time[i - 1]).getTime(),
-                            y: cars[i - 1]
+                            x: new Date(aspen_time[i - 1]).getTime(),
+                            y: aspen_temp[i - 1]
                         });
                     }
                     console.log(data);
                     return data;
                 }())
+
+        }, {
+            name: 'Chamonix data',
+            data:
+
+            (function () {
+                // generate an array of random data
+                var data = [];
+
+                
+                    for (i = chamonix_time.length - 10; i < chamonix_time.length; i += 1) {
+                    data.push({
+                        x: new Date(chamonix_time[i - 1]).getTime(),
+                        y: chamonix_temp[i - 1]
+                    });
+                }
+                console.log(data);
+                return data;
+            }())
 
         }]
     });
