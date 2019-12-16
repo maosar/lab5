@@ -17,7 +17,7 @@ class Controller
 
         $temp = $obsData[3];
 
-        echo "id: " . $sensor_id . " time: " . $timeStamp . " temp: " . $temp;
+        return "id: " . $sensor_id . " time: " . $timeStamp . " temp: " . $temp;
         $this -> observationModel -> add($sensor_id, $timeStamp, $temp);
     }
     function get_obs_id($sensor_id){

@@ -15,11 +15,20 @@ $(document).ready(function () {
 });
 
 function LoadServerEvent() {
-    evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index4.php?");
+    evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index2.php?");
     evtSource.onmessage = function (event) {
         data = JSON.parse(event.data);
-        aspen = (data[0]);
-        chamonix = (data[1]);
+        //aspen = (data[0]);
+        //chamonix = (data[1]);
+        console.log(JSON.parse(event.data)[0].sensor_id);
+        console.log(JSON.parse(event.data)[0].obs_time);
+        console.log(JSON.parse(event.data)[0].temp);
+        data = JSON.parse(event.data);
+        dateTime = data[0].obs_time.split(" ");
+        console.log(dateTime)
+
+        server_event[data[0].sensor_id] = { "time": new Date(data[0].obs_time), "temp": data[0].temp, "isNew": true };
+   
 
         //var sensor_id = event.data[0].sensor_id;
         //newTime = data[0].obs_time;
@@ -32,20 +41,6 @@ function LoadServerEvent() {
         //server_event[sensor_id].temp = parseFloat(temp);
         //server_event[sensor_id].isNew = true;
         //console.log(server_event[sensor_id]);
-
-    }
-    evtSource.onerror = function (err) {
-        console.error("EventSource failed:", err);
-        console.error("Is trusted:", err.isTrusted);
-    };
-
-}
-function LoadServerEvent2() {
-    evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index4.php?");
-    evtSource.onmessage = function (event) {
-        data = JSON.parse(event.data);
-        console.log(data);
-     
 
     }
     evtSource.onerror = function (err) {
@@ -99,9 +94,33 @@ function ShowChart() {
                 load: function () {
 
                     // set up the updating of the chart every 100 miliseconds
-                    var series = this.series[0];
+                    var series1 = this.series[0];
+                    var series2 = this.series[1];
 
                     setInterval(function () {
+
+                        if (server_event[1].isNew) {
+                            console.log(new Date(server_event[1].time).getTime());
+                            console.log(parseFloat(server_event[1].temp));
+                            let x = new Date(server_event[1].time).getTime(), // current time
+                                y = parseFloat(server_event[1].temp);
+                            console.log(x)
+                            console.log(y)
+                            // [x,y, redraw, shift]
+                            series1.addPoint([x, y], true, true);
+                            server_event[1].isNew = false;
+                        }
+                        if (server_event[2].isNew) {
+                            console.log(new Date(server_event[2].time).getTime());
+                            console.log(parseFloat(server_event[2].temp));
+                            let x = new Date(server_event[2].time).getTime(), // current time
+                                y = parseFloat(server_event[2].temp);
+                            console.log(x)
+                            console.log(y)
+                            // [x,y, redraw, shift]
+                            series2.addPoint([x, y], true, true);
+                            server_event[2].isNew = false;
+                        }
                         
                             //let x = new Date(old_time).getTime(), // current time
                             //    y = parseInt(new_temp);
@@ -111,7 +130,7 @@ function ShowChart() {
                             //console.log(y)
                             //timeChanged = false;
                         
-                    }, 100);
+                    }, 1000);
                 }
             }
         },
@@ -175,10 +194,10 @@ function ShowChart() {
                     var data = [];
 
                     console.log(aspen_time.length);
-                    for (i = aspen_time.length - 10; i < aspen_time.length; i += 1) {
+                    for (i = aspen_time.length; i >= 0; i -= 1) {
                         data.push({
-                            x: new Date(aspen_time[i - 1]).getTime(),
-                            y: aspen_temp[i - 1]
+                            x: new Date(aspen_time[i]).getTime(),
+                            y: aspen_temp[i]
                         });
                     }
                     console.log(data);
@@ -193,11 +212,11 @@ function ShowChart() {
                 // generate an array of random data
                 var data = [];
 
-                
-                    for (i = chamonix_time.length - 10; i < chamonix_time.length; i += 1) {
+
+                    for (i = chamonix_temp.length; i >= 0; i -= 1) {
                     data.push({
-                        x: new Date(chamonix_time[i - 1]).getTime(),
-                        y: chamonix_temp[i - 1]
+                        x: new Date(chamonix_time[i]).getTime(),
+                        y: chamonix_temp[i]
                     });
                 }
                 console.log(data);
