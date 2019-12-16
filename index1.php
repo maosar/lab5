@@ -1,43 +1,25 @@
-                                \
-                 .___             `.
-    ___              `~\           |               \
-  o~   `.               |         /'                |
-.----._ `|             ,'       /'              _./'
-`o     `\|___       __,|----'~~~~T-----,__  _,'~
-      /~~o   `~>-/|~ '   ' ,   '      '   ~~\_
-     |_      <~   |   ' ,   ' '   '  ' , '     \
-       `-...-'~\./' '     '     '   '   '  , '  >
-                 `-, __'  ,  '  '  , ' ,   '_,'-'
-                   /'   `~~~~~~~|`--------~~\
-                 /'            ,'            `.
-          ~~`---'             /               |
-                           ,-' 
+<?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+session_start();
 
-	
+include_once("./ObservationModel.php");
+include_once("./Controller.php");
+include_once("./Connection.php");
 
+header("Cache-Control: no-cache");
+header("Content-Type: application/json");
+header("Expires: -1");
 
+$qsArray = explode("%", $_SERVER["QUERY_STRING"]);
 
+if(file_exists("./".$qsArray[0].".php")){
+    $controller = new $qsArray[0]();
+    echo $controller -> {$qsArray[1]}($qsArray[2]);
 
+}else{
 
-    '~~****Nm_    _mZ*****~~
-            _8@mm@K_
-           W~@`  '@~W
-          ][][    ][][
-    gz    'W'W.  ,W`W`    es
-  ,Wf    gZ****MA****Ns    VW.
- gA`   ,Wf     ][     VW.   'Ms
-Wf    ,@`      ][      '@.    VW
-M.    W`  _mm_ ][ _mm_  'W    ,A
-'W   ][  i@@@@i][i@@@@i  ][   W`
- !b  @   !@@@@!][!@@@@!   @  d!
-  VWmP    ~**~ ][ ~**~    YmWf
-    ][         ][         ][
-  ,mW[         ][         ]Wm.
- ,A` @  ,gms.  ][  ,gms.  @ 'M.
- W`  Yi W@@@W  ][  W@@@W iP  'W
-d!   'W M@@@A  ][  M@@@A W`   !b
-@.    !b'V*f`  ][  'V*f`d!    ,@
-'Ms    VW.     ][     ,Wf    gA`
-  VW.   'Ms.   ][   ,gA`   ,Wf
-   'Ms    'V*mmWWmm*f`    gA`
+    echo "Nope";
+
+}
