@@ -29,10 +29,8 @@ class Controller
     }
 
     function get_latest_obs(){
-
-
         $data = $this -> observationModel -> get_latest_obs();
-        return $data[0];
+        return $data;
         
     }
 
@@ -40,7 +38,7 @@ class Controller
 
 
         $data = $this -> observationModel -> get_latest_obs_id($sensor_id);
-        return $data[0];
+        return $data;
         
     }
 }

@@ -70,7 +70,7 @@ class ObservationModel
             $pdoStatement->execute();
             $latest_obs = $pdoStatement->fetchAll(PDO::FETCH_ASSOC);
             $pdoConnection = NULL;
-            return $latest_obs;
+            return json_encode ($latest_obs);
         } catch (PDOException $e) {
             echo 'Connection failed: ' . $e->getMessage();
         }
