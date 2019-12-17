@@ -17,30 +17,10 @@ $(document).ready(function () {
 function LoadServerEvent() {
     evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index2.php?");
     evtSource.onmessage = function (event) {
+
         data = JSON.parse(event.data);
-        //aspen = (data[0]);
-        //chamonix = (data[1]);
-        console.log(JSON.parse(event.data)[0].sensor_id);
-        console.log(JSON.parse(event.data)[0].obs_time);
-        console.log(JSON.parse(event.data)[0].temp);
-        data = JSON.parse(event.data);
-        dateTime = data[0].obs_time.split(" ");
-        console.log(dateTime)
 
         server_event[data[0].sensor_id] = { "time": new Date(data[0].obs_time), "temp": data[0].temp, "isNew": true };
-   
-
-        //var sensor_id = event.data[0].sensor_id;
-        //newTime = data[0].obs_time;
-        //temp = data[0].temp;
-
-        //console.log(new Date(newTime).getTime());
-        //console.log("Time: " + newTime);
-
-        //server_event[sensor_id].time = new Date(newTime).getTime();
-        //server_event[sensor_id].temp = parseFloat(temp);
-        //server_event[sensor_id].isNew = true;
-        //console.log(server_event[sensor_id]);
 
     }
     evtSource.onerror = function (err) {

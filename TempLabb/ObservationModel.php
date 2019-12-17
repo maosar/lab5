@@ -75,4 +75,5 @@ class ObservationModel
             echo 'Connection failed: ' . $e->getMessage();
         }
     }
+
 }
