@@ -44,8 +44,7 @@ function LoadFile() {
                         if (item.sensor_id == 1) {
                             aspen_time.push(item.obs_time);
                             aspen_temp.push(parseFloat(item.temp));
-                        } else
-                        {
+                        } else {
                             chamonix_time.push(item.obs_time);
                             chamonix_temp.push(parseFloat(item.temp));
                         }
@@ -58,7 +57,7 @@ function LoadFile() {
                     console.log(chamonix_time);
                     console.log(chamonix_temp);
                     ShowChart();
-                    
+
                 }).catch(error => console.log('Error json():', error));
         }).catch(error => console.log('Error response: ', error));
 }
@@ -101,15 +100,15 @@ function ShowChart() {
                             series2.addPoint([x, y], true, true);
                             server_event[2].isNew = false;
                         }
-                        
-                            //let x = new Date(old_time).getTime(), // current time
-                            //    y = parseInt(new_temp);
-                            //// [x,y, redraw, shift]
-                            //series.addPoint([x, y], true, true);
-                            //console.log(x)
-                            //console.log(y)
-                            //timeChanged = false;
-                        
+
+                        //let x = new Date(old_time).getTime(), // current time
+                        //    y = parseInt(new_temp);
+                        //// [x,y, redraw, shift]
+                        //series.addPoint([x, y], true, true);
+                        //console.log(x)
+                        //console.log(y)
+                        //timeChanged = false;
+
                     }, 1000);
                 }
             }
@@ -188,20 +187,20 @@ function ShowChart() {
             name: 'Chamonix data',
             data:
 
-            (function () {
-                // generate an array of random data
-                var data = [];
+                (function () {
+                    // generate an array of random data
+                    var data = [];
 
 
                     for (i = chamonix_temp.length; i >= 0; i -= 1) {
-                    data.push({
-                        x: new Date(chamonix_time[i]).getTime(),
-                        y: chamonix_temp[i]
-                    });
-                }
-                console.log(data);
-                return data;
-            }())
+                        data.push({
+                            x: new Date(chamonix_time[i]).getTime(),
+                            y: chamonix_temp[i]
+                        });
+                    }
+                    console.log(data);
+                    return data;
+                }())
 
         }]
     });

@@ -11,14 +11,13 @@ class Controller
 
     function add($queryString){
         $obsData = explode("&", $queryString);
-        
 		$sensor_id = $obsData[0];
 		$timeStamp = $obsData[1] . " " . $obsData[2];
-
         $temp = $obsData[3];
+        $this -> observationModel -> add($sensor_id, $timeStamp, $temp);
 
         return "id: " . $sensor_id . " time: " . $timeStamp . " temp: " . $temp;
-        $this -> observationModel -> add($sensor_id, $timeStamp, $temp);
+       
     }
     function get_obs_id($sensor_id){
         return $this -> observationModel -> get_obs_id($sensor_id);
@@ -44,5 +43,4 @@ class Controller
         return $data;
         
     }
-
 }
