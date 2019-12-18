@@ -8,6 +8,7 @@ include_once("./ObservationModel.php");
 include_once("./Controller.php");
 include_once("./Connection.php");
 
+header('Access-Control-Allow-Origin: *');
 date_default_timezone_set("America/New_York");
 header("Cache-Control: no-cache");
 header("Content-Type: text/event-stream\n\n");

@@ -135,6 +135,7 @@ def getSensorTemp():
     #Open devicefile and read it
     fileobj = open (devicefile, 'r')
     lines = fileobj.readlines()
+    print(lines)
     fileobj.close()
     tempdata = lines[1].split("=")
     

@@ -3,11 +3,12 @@ var aspen_time = [];
 var aspen_temp = [];
 var chamonix_time = [];
 var chamonix_temp = [];
-var server_event = {
+//Array som håller nya värden för varje sensor ID (från serverEvent)
+//isNew används för att inte lägga till samma observation 2 gånger
+var live_data = {
     1: { "time": new Date, "temp": 0.0, "isNew": false },
     2: { "time": new Date, "temp": 0.0, "isNew": false }
 };
-
 
 $(document).ready(function () {
     LoadFile();
@@ -15,31 +16,28 @@ $(document).ready(function () {
 });
 
 function LoadServerEvent() {
-    evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index2.php?");
+   // evtSource = new EventSource("http://users.du.se/~h17maost/2018/TempLabb/index2.php?");
+    evtSource = new EventSource("http://130.243.34.36/index2.php?");
+
     evtSource.onmessage = function (event) {
-
         data = JSON.parse(event.data);
-
-        server_event[data[0].sensor_id] = { "time": new Date(data[0].obs_time), "temp": data[0].temp, "isNew": true };
-
+        live_data[data[0].sensor_id] = { "time": new Date(data[0].obs_time), "temp": data[0].temp, "isNew": true };
     }
     evtSource.onerror = function (err) {
         console.error("EventSource failed:", err);
         console.error("Is trusted:", err.isTrusted);
     };
-
 }
 
-
 function LoadFile() {
-    var apiUrl = "http://users.du.se/~h17maost/2018/TempLabb/index1.php?Controller%get_obs%";
-    // var apiUrl = "http://130.243.34.36/index1.php?Controller%get_obs%";
+    //var apiUrl = "http://users.du.se/~h17maost/2018/TempLabb/index1.php?Controller%get_obs%";
+    var apiUrl = "http://130.243.34.36/index1.php?Controller%get_obs%";
     fetch(apiUrl)
         .then(function (response) {
             console.log(response);
             response.json()
                 .then(function (data) {
-
+                    //Fyller våra arrayer med data (API returnerar 100 senaste)
                     data.forEach(function (item, index, array) {
                         if (item.sensor_id == 1) {
                             aspen_time.push(item.obs_time);
@@ -50,65 +48,41 @@ function LoadFile() {
                         }
 
                     });
-                    console.log("aspen");
-                    console.log(aspen_time);
-                    console.log(aspen_temp);
-                    console.log("chamonix");
-                    console.log(chamonix_time);
-                    console.log(chamonix_temp);
+                    //Körs här för att garantera att det finns data att visa 
                     ShowChart();
-
                 }).catch(error => console.log('Error json():', error));
         }).catch(error => console.log('Error response: ', error));
 }
 
 function ShowChart() {
-
+    //Anrop till Highcharts konstruktor 
     Highcharts.chart('container', {
         chart: {
             type: 'spline',
             animation: Highcharts.svg, // don't animate in old IE
             marginRight: 10,
             events: {
+                //Körs när Highchart har laddats klart
                 load: function () {
 
-                    // set up the updating of the chart every 100 miliseconds
                     var series1 = this.series[0];
                     var series2 = this.series[1];
 
+                    // set up the updating of the chart every second
                     setInterval(function () {
 
-                        if (server_event[1].isNew) {
-                            console.log(new Date(server_event[1].time).getTime());
-                            console.log(parseFloat(server_event[1].temp));
-                            let x = new Date(server_event[1].time).getTime(), // current time
-                                y = parseFloat(server_event[1].temp);
-                            console.log(x)
-                            console.log(y)
-                            // [x,y, redraw, shift]
+                        if (live_data[1].isNew) {
+                            let x = new Date(live_data[1].time).getTime();
+                            let y = parseFloat(live_data[1].temp);
                             series1.addPoint([x, y], true, true);
-                            server_event[1].isNew = false;
+                            live_data[1].isNew = false;
                         }
-                        if (server_event[2].isNew) {
-                            console.log(new Date(server_event[2].time).getTime());
-                            console.log(parseFloat(server_event[2].temp));
-                            let x = new Date(server_event[2].time).getTime(), // current time
-                                y = parseFloat(server_event[2].temp);
-                            console.log(x)
-                            console.log(y)
-                            // [x,y, redraw, shift]
+                        if (live_data[2].isNew) {
+                            let x = new Date(live_data[2].time).getTime();
+                            let y = parseFloat(live_data[2].temp);
                             series2.addPoint([x, y], true, true);
-                            server_event[2].isNew = false;
+                            live_data[2].isNew = false;
                         }
-
-                        //let x = new Date(old_time).getTime(), // current time
-                        //    y = parseInt(new_temp);
-                        //// [x,y, redraw, shift]
-                        //series.addPoint([x, y], true, true);
-                        //console.log(x)
-                        //console.log(y)
-                        //timeChanged = false;
-
                     }, 1000);
                 }
             }
@@ -119,10 +93,10 @@ function ShowChart() {
         },
 
         title: {
-            text: 'Live traffic data'
+            text: 'Live temperature data'
         },
-
         accessibility: {
+            // Announces new data to screen reader users
             announceNewData: {
                 enabled: true,
                 minAnnounceInterval: 15000,
@@ -142,7 +116,7 @@ function ShowChart() {
 
         yAxis: {
             title: {
-                text: 'Value'
+                text: 'Temperature °C'
             },
             plotLines: [{
                 value: 0,
@@ -163,46 +137,32 @@ function ShowChart() {
         exporting: {
             enabled: false
         },
-
+        // Initial data 
         series: [{
             name: 'Aspen data',
-            data:
-
-                (function () {
-                    // generate an array of random data
-                    var data = [];
-
-                    console.log(aspen_time.length);
+            data: (function () {
+                var data = [];
                     for (i = aspen_time.length; i >= 0; i -= 1) {
                         data.push({
                             x: new Date(aspen_time[i]).getTime(),
                             y: aspen_temp[i]
                         });
                     }
-                    console.log(data);
                     return data;
                 }())
-
         }, {
             name: 'Chamonix data',
-            data:
-
-                (function () {
-                    // generate an array of random data
+            data: (function () {
                     var data = [];
-
-
                     for (i = chamonix_temp.length; i >= 0; i -= 1) {
                         data.push({
                             x: new Date(chamonix_time[i]).getTime(),
                             y: chamonix_temp[i]
                         });
                     }
-                    console.log(data);
                     return data;
                 }())
-
-        }]
+            }]
     });
 }
 
