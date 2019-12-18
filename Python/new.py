@@ -31,9 +31,14 @@ def main():
         time_stamp = getTimeStamp()
         print(time_stamp['date'])
         print(time_stamp['time'])
-        url = "http://users.du.se/~h17maost/2018/TempLabb/index1.php?Controller%add%1&" + time_stamp['date'] + "&" + time_stamp['time'] + "&" + str(temp + random.random())
+        url = "http://130.243.34.36/index1.php?Controller%add%1&" + time_stamp['date'] + "&" + time_stamp['time'] + "&" + str(temp)
         data = urllib.request.urlopen(url)
         print(data.read())
+        time.sleep(5)
+        url = "http://130.243.34.36/index1.php?Controller%add%2&" + time_stamp['date'] + "&" + time_stamp['time'] + "&" + str(temp + random.randint(1000,3000)/1000)
+        data = urllib.request.urlopen(url)
+        print(data.read())
+        time.sleep(5)
         if(not isNormal(temp)):
             print("Not normal: " + str(temp))
             checkTemp(temp)
@@ -52,21 +57,25 @@ def checkTemp(temp):
     if(temp < norm_min and outTemp <= temp):
         #Send mail: Kallt i stugan.
         title = "Cabin: too cold"
+        print(title)
         content = "<p>Too cold, the cabin temperature is: " + str(temp) + "</p><p>The outside temperature is: " + str(outTemp) + "</p>"
         sendMail(title, content)
     if(temp < norm_min and outTemp > temp):
         #Send mail: Fel på sensorn.
         title = "Cabin: sensor failure"
+        print(title)
         content = "<p>The cabin temperature is: " + str(temp) + "</p><p>The outside temperature is: " + str(outTemp) + "</p>"
         sendMail(title, content)
     if(temp > norm_max and outTemp >= temp):
         #Send mail: Varmt inne o varmt ute.
         title = "Cabin: warm, but maybe not too warm"
+        print(title)
         content = "<p>The cabin temperature is: " + str(temp) + "</p><p>The outside temperature is: " + str(outTemp) + "</p>"
         sendMail(title, content)
     if(temp > norm_max and outTemp < temp):
         #Send mail: Varmt inne men inte ute. (Antingen e sensorn trasig eller så brinner det...)
-        title = "Cabin: too warm"
+        title = "Cabin: Sensor fail or cabin on fire"
+        print(title)
         content = "<p>Too warm, the cabin temperature is: " + str(temp) + "</p><p>The outside temperature is: " + str(outTemp) + "</p>"
         sendMail(title, content)
         
